@@ -180,7 +180,7 @@ void zapisz_dane(String nnapis="null") {
     for(int i=0; i <= nnapis.length(); ++i) { 
       napis[n][i] = nnapis[i];
     }
-    Serial.println(napis[n]);
+    //Serial.println(napis[n]);
     b[n] = digitalRead(button);
     n++;
 
