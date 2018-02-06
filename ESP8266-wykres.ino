@@ -92,7 +92,7 @@ void setup() {
 
   
  
-    Serial.println();
+   /* Serial.println();
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(ssid_A);
@@ -108,7 +108,7 @@ void setup() {
     
  if (WiFi.status() != WL_CONNECTED) {
     Serial.println();
-    Serial.print("Fail connected to  ");
+    Serial.print("Fail connected to  ");  */
     Serial.println(ssid_A);
     Serial.println();
   
@@ -125,7 +125,7 @@ void setup() {
       z++;
     }
     z = 1;
-  }
+ // }
 
  
   Serial.println("");
@@ -209,147 +209,128 @@ void zapisz_dane(String nnapis="null") {
 
  
 void loop() {
-  time_elapce++;
-  
-  if(time_elapce == 1000000 ) {
-    time_elapce = 0;
-    zapisz_dane();
-  }
-
-
- 
+	bool in=0;
+	time_elapce++;
+	if(time_elapce == 1000000 ) {
+		time_elapce = 0;
+		zapisz_dane();
+	}
   // Check if a client has connected
   WiFiClient client = server.available();
-  //delay(1);
-  if (!client) {
-    return;
-  }
+  if (client) {
+	// Wait until the client sends some data
+	Serial.println("[new client]");
+	while(client.connected()){
+		// read line by line what the client (web browser) is requesting
+		if (client.available()) {
+			// Read the first line of the request
+			char date[200];
+			int k = 1;
+			String request = client.readStringUntil('\r');
+//			Serial.println(request);
+      if (request.length() > 3 && request[0] == 'G' && request[1] == 'E' && request[2] == 'T') {
+			  for(int i = 33; i < (request.length()-9) && i < (17+33); ++i) {
+  			  date[k++] = request[i];
+			  }
+  			if(k>1) {
+				  date[0] = '\'';
+				  date[k++] = '\''; 
+				  date[k] = '\0';
+				  Serial.println(date);
+				  zapisz_dane(date);
+			  }
+      }
+			if (request.length() == 1 && request[0] == '\n') {
+				// Return the response
+				client.println("HTTP/1.1 200 OK");
+				client.println("Content-Type: text/html");
+				client.println(""); //  do not forget this one
+				client.println("<!DOCTYPE HTML>");
+				client.println("<html>");
 
-
-// Wait until the client sends some data
-  Serial.println("new client");
-  while(!client.available()){
-    delay(1);
-  }
-  
-
-   
-  // Return the response
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
-  client.println(""); //  do not forget this one
-  client.println("<!DOCTYPE HTML>");
-  client.println("<html>");
-
-   client.println("<head>");
-    client.println("<script type='text/javascript' src='https://www.google.com/jsapi'></script>");
-    client.println("<script type='text/javascript'>");
-      client.println("google.load('visualization', '1', {packages:['corechart', 'controls']});");
-      client.println("google.setOnLoadCallback(drawChart);");
-      client.println("function drawChart() {");
-        client.println("var data = new google.visualization.DataTable();");
-          client.println("data.addColumn('timeofday', 'Czas');");
-          client.println("data.addColumn('number', 'Temperatura');");
-          client.println("data.addColumn({type:'string', role:'annotation'}); ");
-
-bool in=0;
-          client.println("data.addRows([");
+					client.println("<head>");
+					client.println("<script type='text/javascript' src='https://www.google.com/jsapi'></script>");
+					client.println("<script type='text/javascript'>");
+					client.println("google.load('visualization', '1', {packages:['corechart', 'controls']});");
+					client.println("google.setOnLoadCallback(drawChart);");
+					client.println("function drawChart() {");
+					client.println("var data = new google.visualization.DataTable();");
+					client.println("data.addColumn('timeofday', 'Czas');");
+					client.println("data.addColumn('number', 'Temperatura');");
+					client.println("data.addColumn({type:'string', role:'annotation'}); ");
+					client.println("data.addRows([");
            
-          for(int i = n; (temp[i] != 0) && (i<BUF) ; ++i) {
-           //client.print("jestem w jedynce i n wynosi");
-           //client.println(n);
-             if(i != n) client.print(",");
-            client.print("[");
-
-client.print("[");
-            client.print(h[i]);
-            client.print(",");
-            client.print(m[i]);
-            client.print(",");
-            client.print(s[i]);
-client.print("]");
-            client.print(",");
-            client.print(temp[i]);
-            client.print(",");
-           //if(b[i] == 0) { client.print(date);} else {client.print("null");};
-           client.print(napis[i]);
-           client.print("]");
-           client.println("");
-           in = 1;
-          }
+					for(int i = n; (temp[i] != 0) && (i<BUF) ; ++i) {
+						if(i != n) { client.print(","); }
+						client.print("[");
+						client.print("[");
+						client.print(h[i]);
+					        client.print(",");
+					        client.print(m[i]);
+						client.print(",");
+					        client.print(s[i]);
+						client.print("]");
+						client.print(",");
+					        client.print(temp[i]);
+					        client.print(",");
+						client.print(napis[i]);
+					        client.print("]");
+					        client.println("");
+						in = 1;
+					}
           
-          for(int i = 0; (temp[i] != 0) && (i<n) ; ++i) {
-            if((in == 0) && (i != 0)) { client.print(", "); } else if(in == 1) { client.print(", "); }
-            client.print("[");
-
-client.print("[");
-            client.print(h[i]);
-            client.print(",");
-            client.print(m[i]);
-            client.print(",");
-            client.print(s[i]);
-client.print("]");
-            client.print(",");
-            client.print(temp[i]);
-            client.print(",");
-           //if(b[i] == 0) { client.print(date);} else {client.print("null");};
-           client.print(napis[i]);
-           client.print("]");
-           client.println("");
-          }
-
-        client.println("]);");
+					for(int i = 0; (temp[i] != 0) && (i<n) ; ++i) {
+						if((in == 0) && (i != 0)) { client.print(", "); } else if(in == 1) { client.print(", "); }
+						client.print("[");
+						client.print("[");
+					        client.print(h[i]);
+					        client.print(",");
+					        client.print(m[i]);
+					        client.print(",");
+					        client.print(s[i]);
+						client.print("]");
+					        client.print(",");
+					        client.print(temp[i]);
+					        client.print(",");
+					        client.print(napis[i]);
+					        client.print("]");
+					        client.println("");
+					}
+				        client.println("]);");
  
-        client.println("var options = {");
-          client.println("annotations: { textStyle: {fontName: 'Times-Roman',     fontSize: 28, bold: true, italic: true,      color: 'black',      opacity: 0.8    }  },");
-        client.println("hAxis: { title: 'Godzina [hh:mm]' },");
-        client.println("vAxis: { title: 'Temperatura [*C]' }");
-        client.println("};");
+		        client.println("var options = {");
+		        client.println("annotations: { textStyle: {fontName: 'Times-Roman',     fontSize: 28, bold: true, italic: true,      color: 'black',      opacity: 0.8    }  },");
+		        client.println("hAxis: { title: 'Godzina [hh:mm]' },");
+		        client.println("vAxis: { title: 'Temperatura [*C]' }");
+		        client.println("};");
  
-        client.println("var chart = new google.visualization.LineChart(document.getElementById('chart_div'));");
-        client.println("chart.draw(data, options);");
-      client.println("}");
-    client.println("</script>");
-  client.println("</head>");
-  client.println("<body>");
-    client.println("<div id='chart_div' style='width: 900px; height: 500px;'></div>");
-///////////////////////////////////////
+		        client.println("var chart = new google.visualization.LineChart(document.getElementById('chart_div'));");
+		        client.println("chart.draw(data, options);");
+			client.println("}");
+			client.println("</script>");
+			client.println("</head>");
+			client.println("<body>");
+			client.println("<div id='chart_div' style='width: 900px; height: 500px;'></div>");
 
-    client.println("<form action='/action_page.php' method='get'>");
-    client.println("<div>");
-    client.println("<label style='font-size: 25px;height:90px;width:100px;'for='co_zrobiono'>Co zrobiono:  </label>");
-    client.println("<input style='font-size: 25px;height:90px;width:300px;' type='text' name='co_zrobiono'><br>");
-    client.println("<input style='font-szie: 65px;height:90px;width:400px; padding: 15px 32px;'type='submit' value='Submit'>");
-    client.println("<div>");
-    client.println("</form>");
-  client.println("</body>");
-  client.println("</html>");
+		    client.println("<form action='/action_page.php' method='get'>");
+		    client.println("<div>");
+		    client.println("<label style='font-size: 25px;height:90px;width:100px;'for='co_zrobiono'>Co zrobiono:  </label>");
+		    client.println("<input style='font-size: 25px;height:90px;width:300px;' type='text' name='co_zrobiono'><br>");
+		    client.println("<input style='font-szie: 65px;height:90px;width:400px; padding: 15px 32px;'type='submit' value='Submit'>");
+		    client.println("<div>");
+		    client.println("</form>");
+		    client.println("</body>");
+		    client.println("</html>");
+				break;
+			}
+		}
+	}
 
+    delay(1); // give the web browser time to receive the data
 
-
-  // Read the first line of the request
-  char date[200];
-  int k = 1;
-  String request = client.readStringUntil('\r');
-  Serial.println(request);
-  client.flush();
-  for(int i = 33; i < (request.length()-9) && i < (17+33); ++i) {
-    date[k++] = request[i];
+    // close the connection:
+    client.stop();
+    Serial.println("[Client disonnected]");
   }
-  if(k>1) {
-    date[0] = '\'';
-    date[k++] = '\''; 
-    date[k] = '\0';
-    Serial.println(date);
-    zapisz_dane(date);
-  }
-  
-  
-
  
-   client.stop();
-  Serial.println("Client disconnected");
-  Serial.println("");
-  //delay(100);
-  
 }
