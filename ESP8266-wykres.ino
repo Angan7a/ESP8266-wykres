@@ -6,8 +6,8 @@
 #include <time.h>
 #include "Gsender.h"
 
-#define BUF 1000
-#define BUF_NAZW 15
+#define BUF 1500
+#define BUF_NAZW 20
 
 
 #define LDR   A0
@@ -24,7 +24,7 @@
    int s[BUF];
    int m[BUF];
    int h[BUF];
-   bool b[BUF];
+   //bool b[BUF];
 
   int tempLBase = 23;
   int tempHBase = 40;
@@ -197,7 +197,7 @@ void zapisz_dane(String nnapis="null") {
     }
 	
     //Serial.println(napis[n]);
-    b[n] = digitalRead(button);
+    //b[n] = digitalRead(button);
     n++;
 
     if(n == BUF) n = 0;
