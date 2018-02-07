@@ -7,6 +7,7 @@
 #include "Gsender.h"
 
 #define BUF 600
+#define BUF_NAZW 10
 
 
 #define LDR   A0
@@ -30,7 +31,9 @@
 
   bool czy_sa_zapiski = 0;
   char napis[BUF][20];
-
+  char Napis[BUF_NAZW][20];
+  int num_n[BUF_NAZW];
+  int index_nazw = 0;
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
@@ -180,6 +183,15 @@ void zapisz_dane(String nnapis="null") {
     for(int i=0; i <= nnapis.length(); ++i) { 
       napis[n][i] = nnapis[i];
     }
+
+    if (nnapis != "null") {
+	    for(int i=0; i <= nnapis.length(); ++i) { 
+    		Napis[index_nazw][i] = nnapis[i];
+		    num_n[index_nazw++] = n;		
+		    if (index_nazw == BUF_NAZW) { index_nazw = 0;}
+	    }
+    }
+	
     //Serial.println(napis[n]);
     b[n] = digitalRead(button);
     n++;
