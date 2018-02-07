@@ -7,13 +7,16 @@
 #include "Gsender.h"
 
 #define BUF 600
-#define BUF_NAZW 10
+#define BUF_NAZW 3
 
 
 #define LDR   A0
 #define ONE_WIRE_BUS 5
 
 
+   int* next;
+   int indexx = 0;
+   int indexp = 0;
    float temper;
    float temp[BUF];
    int n = 0;
@@ -34,6 +37,7 @@
   char Napis[BUF_NAZW][20];
   int num_n[BUF_NAZW];
   int index_nazw = 0;
+
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
@@ -68,7 +72,9 @@ void sendSMS(float temper) {
 
  
 void setup() {
-  
+    for(int i = 0; i < BUF_NAZW; ++i) {
+      num_n[i] = -1;  
+    }
   
   DS18B20.begin();
  
@@ -187,9 +193,11 @@ void zapisz_dane(String nnapis="null") {
     if (nnapis != "null") {
 	    for(int i=0; i <= nnapis.length(); ++i) { 
     		Napis[index_nazw][i] = nnapis[i];
-		    num_n[index_nazw++] = n;		
-		    if (index_nazw == BUF_NAZW) { index_nazw = 0;}
 	    }
+      num_n[index_nazw++] = n;
+      indexx++;
+      next = &num_n[index_nazw];
+      if (index_nazw == BUF_NAZW) { index_nazw = 0; indexx = 0;}
     }
 	
     //Serial.println(napis[n]);
@@ -271,7 +279,9 @@ void loop() {
 					client.println("data.addColumn('number', 'Temperatura');");
 					client.println("data.addColumn({type:'string', role:'annotation'}); ");
 					client.println("data.addRows([");
-           
+
+           int indexp = index_nazw;
+           if (num_n[indexp] == -1) { indexp = 0;}
 					for(int i = n; (temp[i] != 0) && (i<BUF) ; ++i) {
 						if(i != n) { client.print(","); }
 						client.print("[");
@@ -286,6 +296,17 @@ void loop() {
 					        client.print(temp[i]);
 					        client.print(",");
 						client.print(napis[i]);
+			
+            if (num_n[indexp] == i) { 
+              Serial.println("+++++++++++++++++++"); 
+              Serial.println(Napis[indexp]); 
+              indexp++;
+              Serial.println("+++++++++++++++++++"); 
+              if (indexp == BUF_NAZW) {
+                indexp = 0;
+              } 
+            }
+
 					        client.print("]");
 					        client.println("");
 						in = 1;
@@ -305,6 +326,15 @@ void loop() {
 					        client.print(temp[i]);
 					        client.print(",");
 					        client.print(napis[i]);
+						if (num_n[indexp] == i) { 
+              Serial.println("+++++++++++++++++++"); 
+              Serial.println(Napis[indexp]); 
+              indexp++;
+              Serial.println("+++++++++++++++++++"); 
+ 							if (indexp == BUF_NAZW) {
+								indexp = 0;
+							} 
+						}
 					        client.print("]");
 					        client.println("");
 					}
