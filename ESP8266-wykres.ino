@@ -295,16 +295,16 @@ void loop() {
 						client.print(",");
 					        client.print(temp[i]);
 					        client.print(",");
-						client.print(napis[i]);
+						//client.print(napis[i]);
 			
             if (num_n[indexp] == i) { 
-              Serial.println("+++++++++++++++++++"); 
-              Serial.println(Napis[indexp]); 
+              client.println(Napis[indexp]); 
               indexp++;
-              Serial.println("+++++++++++++++++++"); 
               if (indexp == BUF_NAZW) {
                 indexp = 0;
               } 
+            } else {
+              client.println("null");
             }
 
 					        client.print("]");
@@ -325,15 +325,15 @@ void loop() {
 					        client.print(",");
 					        client.print(temp[i]);
 					        client.print(",");
-					        client.print(napis[i]);
-						if (num_n[indexp] == i) { 
-              Serial.println("+++++++++++++++++++"); 
-              Serial.println(Napis[indexp]); 
+					        //client.print(napis[i]);
+						if (num_n[indexp] == i) {
+              client.println(Napis[indexp]); 
               indexp++;
-              Serial.println("+++++++++++++++++++"); 
- 							if (indexp == BUF_NAZW) {
+              if (indexp == BUF_NAZW) {
 								indexp = 0;
 							} 
+						} else {
+              client.println("null"); 
 						}
 					        client.print("]");
 					        client.println("");
