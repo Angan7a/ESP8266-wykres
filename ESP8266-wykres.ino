@@ -6,8 +6,8 @@
 #include <time.h>
 #include "Gsender.h"
 
-#define BUF 600
-#define BUF_NAZW 3
+#define BUF 1000
+#define BUF_NAZW 15
 
 
 #define LDR   A0
@@ -33,7 +33,7 @@
   int delta = 2;
 
   bool czy_sa_zapiski = 0;
-  char napis[BUF][20];
+//  char napis[BUF][20];
   char Napis[BUF_NAZW][20];
   int num_n[BUF_NAZW];
   int index_nazw = 0;
@@ -186,10 +186,6 @@ void zapisz_dane(String nnapis="null") {
     h[n] = (czas[11] - '0')*10 + czas[12] - '0';
     m[n] = (czas[14] - '0')*10 + czas[15] - '0';
     s[n] = (czas[17] - '0')*10 + czas[18] - '0';
-    for(int i=0; i <= nnapis.length(); ++i) { 
-      napis[n][i] = nnapis[i];
-    }
-
     if (nnapis != "null") {
 	    for(int i=0; i <= nnapis.length(); ++i) { 
     		Napis[index_nazw][i] = nnapis[i];
